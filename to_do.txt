@@ -1,0 +1,7 @@
+TO-DO:
+- Restart conversation button.
+- Remove documents uploaded.
+- Add logs.
+- Manage files when they are not .pdf.
+- ver: https://www.youtube.com/watch?v=awsjo_1tqIM
+https://www.youtube.com/watch?v=3fkARjzsz5Y
