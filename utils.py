@@ -4,20 +4,27 @@ from langchain.embeddings import SentenceTransformerEmbeddings
 from langchain.vectorstores.chroma import Chroma
 from PyPDF2 import PdfReader
 
-def read_pdf(file):
-    loader = PyPDFLoader(file)
-    pages = loader.load_and_split()
-    return pages
+def get_pdf_text(file):
+    text = ""
+    if file.endswith('.pdf'):
+        pdf_reader = PdfReader(file)
+        for page in pdf_reader.pages:
+            text += page.extract_text()
+    elif file.endswith('.txt'):
+        with open(file, 'r', encoding='utf-8') as txt_file:
+            text += txt_file.read()
+    else:
+        raise ValueError(f"Unsupported file type: {file}")
+    return text
 
-
-def generate_chunks(pdf_files):
+def generate_chunks(txt_files):
     
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
         chunk_overlap=100,
         separators=["\n\n", "\n", "(?<=\. )", " ", ""])
     
-    chunks = text_splitter.split_documents(pdf_files)
+    chunks = text_splitter.split_text(txt_files)
     return chunks
 
 def initialize_embeddings():
@@ -34,23 +41,3 @@ def generate_vectorstore(texts, embeddings):
     
     vectordb.persist()
     return vectordb
-
-# 08/12/2023
-
-def get_pdf_text(pdf_docs):
-    text = ""
-    for pdf in pdf_docs:
-        pdf_reader = PdfReader(pdf)
-        for page in pdf_reader.pages:
-            text += page.extract_text()
-    return text
-
-def generate_chunks_2(txt_files):
-    
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=100,
-        separators=["\n\n", "\n", "(?<=\. )", " ", ""])
-    
-    chunks = text_splitter.split_text(txt_files)
-    return chunks

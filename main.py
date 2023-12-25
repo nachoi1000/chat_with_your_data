@@ -58,23 +58,22 @@ def main():
 
     with st.sidebar:
         st.subheader("Your documents")
-        pdf_docs = st.file_uploader(
+        files = st.file_uploader(
             "Upload your PDFs here and click on 'Process'", accept_multiple_files=True)
         if st.button("Process"):
             with st.spinner("Processing"):
-                # get pdf text
-                print(pdf_docs)
-                print(type(pdf_docs))
-                raw_text = utils.get_pdf_text(pdf_docs)
-
-                # get the text chunks
-                text_chunks = utils.generate_chunks_2(raw_text)
-
                 # Initiaze embeddings.
                 embedding = utils.initialize_embeddings()
+                
+                for file in files:
+                    # get pdf text
+                    raw_text = utils.get_pdf_text(file)
 
-                # create vector store
-                vectorstore = utils.generate_vectorstore(text_chunks, embeddings=embedding)
+                    # get the text chunks
+                    text_chunks = utils.generate_chunks(raw_text)
+
+                    # create vector store
+                    vectorstore = utils.generate_vectorstore(text_chunks, embeddings=embedding)
 
                 # create conversation chain
                 st.session_state.conversation = get_conversation_chain(
@@ -82,6 +81,7 @@ def main():
 
         if st.button("Reset"):
             st.rerun()
+
 if __name__ == '__main__':
     main()
 
