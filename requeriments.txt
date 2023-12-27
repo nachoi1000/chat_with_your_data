@@ -1,0 +1,5 @@
+logging
+openai
+langchain
+PyPDF2
+chromadb

@@ -1,16 +1,17 @@
 import streamlit as st
+from streamlit.web import bootstrap
 from dotenv import load_dotenv
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from htmlTemplates import css, bot_template, user_template
-import utils
+import utils, shutil
 import secret_keys
+from config import gpt_model
 
 
-
-def get_conversation_chain(vectorstore):
-    llm = ChatOpenAI(model = "gpt-3.5-turbo",
+def get_conversation_chain(vectorstore, gpt_model):
+    llm = ChatOpenAI(model = gpt_model,
                      openai_api_base = secret_keys.OPENAI_BASE_URL,
                      openai_api_key = secret_keys.SECONDARY_OPENAI_KEY)
 
@@ -39,9 +40,6 @@ def handle_userinput(user_question):
 
 
 def main():
-    #load_dotenv()
-    embeddings = utils.initialize_embeddings()
-    
     st.set_page_config(page_title="Chat with multiple PDFs",
                        page_icon=":books:")
     st.write(css, unsafe_allow_html=True)
@@ -64,7 +62,9 @@ def main():
             with st.spinner("Processing"):
                 # Initiaze embeddings.
                 embedding = utils.initialize_embeddings()
-                
+                # Delete vectorstore folder information
+                shutil.rmtree('db')
+
                 for file in files:
                     # get pdf text
                     raw_text = utils.get_pdf_text(file)
@@ -82,7 +82,11 @@ def main():
         if st.button("Reset"):
             st.rerun()
 
+def execute():
+    real_script = 'main.py'
+    bootstrap.run(real_script, f'run.py {real_script}', [], {})
+
 if __name__ == '__main__':
-    main()
+    execute()
 
 

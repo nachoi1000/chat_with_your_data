@@ -1,8 +1,9 @@
-from langchain.document_loaders import PyPDFLoader
+from config import chunk_overlap_size, chunk_size, sentence_transformers_model
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import SentenceTransformerEmbeddings
 from langchain.vectorstores.chroma import Chroma
 from PyPDF2 import PdfReader
+from logging_chat import logger
 
 def get_pdf_text(file):
     text = ""
@@ -17,18 +18,19 @@ def get_pdf_text(file):
         raise ValueError(f"Unsupported file type: {file}")
     return text
 
-def generate_chunks(txt_files):
+def generate_chunks(txt_files, chunk_size, chunk_overlap_size):
     
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=100,
-        separators=["\n\n", "\n", "(?<=\. )", " ", ""])
+        chunk_size = chunk_size,
+        chunk_overlap = chunk_overlap_size,
+        separators = ["\n\n", "\n", "(?<=\. )", " ", ""])
     
     chunks = text_splitter.split_text(txt_files)
+    chunks = [chunk.replace("\n","") for chunk in chunks]
     return chunks
 
-def initialize_embeddings():
-    embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+def initialize_embeddings(sentence_transformers_model):
+    embeddings = SentenceTransformerEmbeddings(model_name=sentence_transformers_model)
     return embeddings
 
 def generate_vectorstore(texts, embeddings):
