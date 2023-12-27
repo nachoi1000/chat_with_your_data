@@ -2,8 +2,10 @@ from config import chunk_overlap_size, chunk_size, embedding_choose
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import SentenceTransformerEmbeddings, OpenAIEmbeddings
 from langchain.vectorstores.chroma import Chroma
+from langchain.chat_models import ChatOpenAI
+from langchain.memory import ConversationBufferMemory
+from langchain.chains import ConversationalRetrievalChain
 from PyPDF2 import PdfReader
-from logging_chat import logger
 import secret_keys
 
 def get_pdf_text(file):
@@ -44,3 +46,18 @@ def generate_vectorstore(texts, embeddings):
     
     vectordb.persist()
     return vectordb
+
+
+def get_conversation_chain(vectorstore, gpt_model):
+    llm = ChatOpenAI(model = gpt_model,
+                     openai_api_base = secret_keys.BASE_URL,
+                     openai_api_key = secret_keys.OPENAI_API_KEY)
+
+    memory = ConversationBufferMemory(
+        memory_key='chat_history', return_messages=True)
+    conversation_chain = ConversationalRetrievalChain.from_llm(
+        llm=llm,
+        retriever=vectorstore.as_retriever(),
+        memory=memory
+    )
+    return conversation_chain

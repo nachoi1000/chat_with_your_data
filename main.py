@@ -1,28 +1,10 @@
 import streamlit as st
 from streamlit.web import bootstrap
-from langchain.chat_models import ChatOpenAI
-from langchain.memory import ConversationBufferMemory
-from langchain.chains import ConversationalRetrievalChain
 from htmlTemplates import css, bot_template, user_template
 import utils, shutil
 import secret_keys
-from config import gpt_model
+from config import gpt_model, embedding_choose
 from logging_chat import logger
-
-
-def get_conversation_chain(vectorstore, gpt_model):
-    llm = ChatOpenAI(model = gpt_model,
-                     openai_api_base = secret_keys.OPENAI_BASE_URL,
-                     openai_api_key = secret_keys.SECONDARY_OPENAI_KEY)
-
-    memory = ConversationBufferMemory(
-        memory_key='chat_history', return_messages=True)
-    conversation_chain = ConversationalRetrievalChain.from_llm(
-        llm=llm,
-        retriever=vectorstore.as_retriever(),
-        memory=memory
-    )
-    return conversation_chain
 
 
 def handle_userinput(user_question):
@@ -63,7 +45,7 @@ def main():
         if st.button("Process"):
             with st.spinner("Processing"):
                 # Initiaze embeddings.
-                embedding = utils.initialize_embeddings()
+                embedding = utils.initialize_embeddings(embedding_choose = embedding_choose)
                 # Delete vectorstore folder information
                 shutil.rmtree('db')
 
@@ -78,7 +60,7 @@ def main():
                     vectorstore = utils.generate_vectorstore(text_chunks, embeddings=embedding)
 
                 # create conversation chain
-                st.session_state.conversation = get_conversation_chain(
+                st.session_state.conversation = utils.get_conversation_chain(
                     vectorstore)
 
         if st.button("Reset"):
