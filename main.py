@@ -1,6 +1,5 @@
 import streamlit as st
 from streamlit.web import bootstrap
-from dotenv import load_dotenv
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
@@ -8,6 +7,7 @@ from htmlTemplates import css, bot_template, user_template
 import utils, shutil
 import secret_keys
 from config import gpt_model
+from logging_chat import logger
 
 
 def get_conversation_chain(vectorstore, gpt_model):
@@ -33,9 +33,11 @@ def handle_userinput(user_question):
         if i % 2 == 0:
             st.write(user_template.replace(
                 "{{MSG}}", message.content), unsafe_allow_html=True)
+            logger.info(f"User question: {message.content}")
         else:
             st.write(bot_template.replace(
                 "{{MSG}}", message.content), unsafe_allow_html=True)
+            logger.info(f"Bot response: {message.content}")
             
 
 

@@ -1,9 +1,10 @@
-from config import chunk_overlap_size, chunk_size, sentence_transformers_model
+from config import chunk_overlap_size, chunk_size, embedding_choose
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import SentenceTransformerEmbeddings
+from langchain.embeddings import SentenceTransformerEmbeddings, OpenAIEmbeddings
 from langchain.vectorstores.chroma import Chroma
 from PyPDF2 import PdfReader
 from logging_chat import logger
+import secret_keys
 
 def get_pdf_text(file):
     text = ""
@@ -29,8 +30,8 @@ def generate_chunks(txt_files, chunk_size, chunk_overlap_size):
     chunks = [chunk.replace("\n","") for chunk in chunks]
     return chunks
 
-def initialize_embeddings(sentence_transformers_model):
-    embeddings = SentenceTransformerEmbeddings(model_name=sentence_transformers_model)
+def initialize_embeddings(embedding_choose):
+    embeddings = OpenAIEmbeddings(model_name = embedding_choose[1], openai_api_key=secret_keys.CORPORATE_OPENAI_KEY)
     return embeddings
 
 def generate_vectorstore(texts, embeddings):
