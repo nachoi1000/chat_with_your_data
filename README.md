@@ -64,5 +64,9 @@ This repository is intended for educational purposes and does not accept further
 This project has been inspired in https://github.com/alejandro-ao/ask-multiple-pdfs repository.
 
 Special thanks to:
+
 https://www.linkedin.com/in/mat%C3%ADas-alloatti-966b8216a/
+
 https://www.linkedin.com/in/alejandro-trinidad/
+
+https://www.linkedin.com/in/erik-davidsson-54b4848/
