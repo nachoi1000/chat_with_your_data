@@ -1,4 +1,3 @@
-from config import chunk_overlap_size, chunk_size, embedding_choose
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import SentenceTransformerEmbeddings, OpenAIEmbeddings
 from langchain.vectorstores.chroma import Chroma
@@ -10,11 +9,11 @@ import secret_keys
 
 def get_pdf_text(file):
     text = ""
-    if file.endswith('.pdf'):
+    if file.name.endswith('.pdf'):
         pdf_reader = PdfReader(file)
         for page in pdf_reader.pages:
             text += page.extract_text()
-    elif file.endswith('.txt'):
+    elif file.name.endswith('.txt'):
         with open(file, 'r', encoding='utf-8') as txt_file:
             text += txt_file.read()
     else:
@@ -33,7 +32,7 @@ def generate_chunks(txt_files, chunk_size, chunk_overlap_size):
     return chunks
 
 def initialize_embeddings(embedding_choose):
-    embeddings = OpenAIEmbeddings(model_name = embedding_choose[1], openai_api_key=secret_keys.CORPORATE_OPENAI_KEY)
+    embeddings = OpenAIEmbeddings(model_name = embedding_choose[1], openai_api_key=secret_keys.NACHO_FERRERI_OPENAI_KEY)
     return embeddings
 
 def generate_vectorstore(texts, embeddings):
@@ -50,8 +49,8 @@ def generate_vectorstore(texts, embeddings):
 
 def get_conversation_chain(vectorstore, gpt_model):
     llm = ChatOpenAI(model = gpt_model,
-                     openai_api_base = secret_keys.BASE_URL,
-                     openai_api_key = secret_keys.OPENAI_API_KEY)
+                     openai_api_base = secret_keys.NACHO_FERRERI_OPENAI_BASE_URL,
+                     openai_api_key = secret_keys.NACHO_FERRERI_OPENAI_KEY)
 
     memory = ConversationBufferMemory(
         memory_key='chat_history', return_messages=True)

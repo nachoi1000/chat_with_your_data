@@ -3,8 +3,9 @@ from streamlit.web import bootstrap
 from htmlTemplates import css, bot_template, user_template
 import utils, shutil
 import secret_keys
-from config import gpt_model, embedding_choose
+from config import gpt_model, embedding_choose, chunk_overlap_size, chunk_size
 from logging_chat import logger
+import os
 
 
 def handle_userinput(user_question):
@@ -47,30 +48,31 @@ def main():
                 # Initiaze embeddings.
                 embedding = utils.initialize_embeddings(embedding_choose = embedding_choose)
                 # Delete vectorstore folder information
-                shutil.rmtree('db')
+                if os.path.exists('db'):
+                    shutil.rmtree('db')
 
                 for file in files:
                     # get pdf text
                     raw_text = utils.get_pdf_text(file)
 
                     # get the text chunks
-                    text_chunks = utils.generate_chunks(raw_text)
+                    text_chunks = utils.generate_chunks(raw_text, chunk_size=chunk_size, chunk_overlap_size=chunk_overlap_size)
 
                     # create vector store
                     vectorstore = utils.generate_vectorstore(text_chunks, embeddings=embedding)
 
                 # create conversation chain
                 st.session_state.conversation = utils.get_conversation_chain(
-                    vectorstore)
+                    vectorstore, gpt_model=gpt_model)
 
         if st.button("Reset"):
             st.rerun()
 
-def execute():
-    real_script = 'main.py'
-    bootstrap.run(real_script, f'run.py {real_script}', [], {})
+#def execute():
+#    real_script = 'main.py'
+#    bootstrap.run(real_script, f'run.py {real_script}', [], {})
 
 if __name__ == '__main__':
-    execute()
+    main()
 
 
